@@ -1,7 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-const SUPABASE_URL = window.SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
+const SUPABASE_URL = window.SUPABASE_URL || "https://mglrgspdqhptwffyqahc.supabase.co";
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "sb_publishable_-fqD6MRqOzBKVJkYP3SsZQ_llLFofeV";
 if(!SUPABASE_URL || !SUPABASE_ANON_KEY){
   console.error("Missing SUPABASE_URL / SUPABASE_ANON_KEY. Set them before deploying.");
 }
