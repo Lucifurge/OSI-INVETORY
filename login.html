@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · OSI Inventory</title>
+<script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-screen bg-slate-50">
+<main class="min-h-screen grid place-items-center p-6">
+  <div class="w-full max-w-md card p-7">
+    <div class="flex items-center gap-3 mb-7">
+      <div class="logo">OSI</div><div><h1 class="font-black text-xl">OSI Inventory</h1><p class="text-sm text-slate-500">FEBIAS College of Bible</p></div>
+    </div>
+    <h2 class="text-2xl font-black">Welcome back</h2>
+    <p class="text-sm text-slate-500 mt-1 mb-6">Sign in to manage OSI property and requests.</p>
+    <form id="login" class="space-y-4">
+      <div><label class="label">Email</label><input class="input" type="email" name="email" required autocomplete="email"></div>
+      <div><label class="label">Password</label><input class="input" type="password" name="password" required autocomplete="current-password"></div>
+      <button class="btn btn-primary w-full" type="submit">Sign in</button>
+      <p id="msg" class="text-sm"></p>
+    </form>
+  </div>
+</main>
+<script type="module">
+import { supabase } from "./js/app.js";
+const form=document.querySelector("#login"),msg=document.querySelector("#msg");
+const {data:{session}}=await supabase.auth.getSession();
+if(session) location.href="index.html";
+form.onsubmit=async e=>{
+ e.preventDefault(); msg.textContent="Signing in...";
+ const d=Object.fromEntries(new FormData(form));
+ const {error}=await supabase.auth.signInWithPassword({email:d.email,password:d.password});
+ if(error){msg.textContent=error.message;msg.className="text-sm text-red-600";return}
+ location.href="index.html";
+};
+</script>
+</body></html>
