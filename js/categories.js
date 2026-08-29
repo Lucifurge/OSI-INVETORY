@@ -1,0 +1,12 @@
+import {supabase,shell,setApp,esc,toast,openModal,canManage,qs,logActivity} from "./app.js";
+const p=await shell("Categories");if(!p)throw 0;
+async function load(){
+ const {data,error}=await supabase.from("categories").select("*").order("name");if(error)throw error;
+ setApp(`<div class="flex justify-between items-end mb-5"><div><h1 class="text-3xl font-black">Categories</h1><p class="text-slate-500">Organize inventory into reusable categories.</p></div>${canManage(p)?`<button id="add" class="btn btn-primary">+ Add category</button>`:""}</div><div class="card table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead><tbody>${(data||[]).map(c=>`<tr><td class="font-bold">${esc(c.name)}</td><td>${esc(c.description||"—")}</td><td><span class="badge ${c.status==="active"?"badge-green":"badge-gray"}">${esc(c.status)}</span></td><td>${canManage(p)?`<button class="edit btn btn-secondary !py-1.5" data-id="${c.id}">Edit</button>`:"—"}</td></tr>`).join("")||`<tr><td colspan="4" class="text-center py-8 text-slate-500">No categories.</td></tr>`}</tbody></table></div>`);
+ if(canManage(p)){qs("#add").onclick=()=>edit();document.querySelectorAll(".edit").forEach(b=>b.onclick=()=>edit(data.find(x=>x.id===b.dataset.id)))}
+}
+function edit(c={}){
+ const m=openModal(c.id?"Edit category":"Add category",`<form id="f" class="space-y-4"><div><label class="label">Name *</label><input class="input" name="name" required value="${esc(c.name||"")}"></div><div><label class="label">Description</label><textarea class="textarea" name="description">${esc(c.description||"")}</textarea></div><div><label class="label">Status</label><select class="select" name="status"><option value="active" ${c.status!=="inactive"?"selected":""}>active</option><option value="inactive" ${c.status==="inactive"?"selected":""}>inactive</option></select></div><button class="btn btn-primary w-full">Save</button></form>`);
+ qs("#f",m).onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));if(!c.id)d.created_by=p.id;const r=c.id?await supabase.from("categories").update(d).eq("id",c.id):await supabase.from("categories").insert(d);if(r.error){toast(r.error.message,false);return}await logActivity(c.id?"Updated category":"Created category","categories",c.id||null,{name:d.name});toast("Category saved");m.remove();load()};
+}
+load().catch(e=>toast(e.message,false));

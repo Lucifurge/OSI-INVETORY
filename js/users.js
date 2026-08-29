@@ -1,0 +1,5 @@
+import {supabase,shell,setApp,esc,toast,isAdmin} from "./app.js";
+const p=await shell("Users");if(!p)throw 0;
+if(!isAdmin(p)){setApp(`<div class="card p-8"><h1 class="text-2xl font-black">Admin access required</h1></div>`);throw 0}
+async function load(){const {data,error}=await supabase.from("profiles").select("*,roles(name)").order("full_name");if(error)throw error;setApp(`<div class="mb-5"><h1 class="text-3xl font-black">Users</h1><p class="text-slate-500">Directory of authenticated application users.</p></div><div class="card table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th></tr></thead><tbody>${(data||[]).map(u=>`<tr><td class="font-bold">${esc(u.full_name)}</td><td>${esc(u.email||"")}</td><td>${esc(u.roles?.name||"unassigned")}</td><td><span class="badge ${u.status==="active"?"badge-green":"badge-gray"}">${esc(u.status)}</span></td><td>${new Date(u.created_at).toLocaleDateString("en-PH")}</td></tr>`).join("")||`<tr><td colspan="5" class="text-center py-8 text-slate-500">No users.</td></tr>`}</tbody></table></div>`)}
+load().catch(e=>toast(e.message,false));
